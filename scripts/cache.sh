@@ -1,0 +1,1 @@
+deno cache --lock=mod_lock.json mod.js
