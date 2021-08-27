@@ -3,6 +3,10 @@ image:
 
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
 tasks:
+  - init: |
+      curl -O https://hyperland.s3.amazonaws.com/hyper
+      chmod +x ./hyper
+    command: ./hyper
   - init: ./scripts/cache.sh
     command: ./scripts/test.sh
 

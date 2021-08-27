@@ -1,40 +1,41 @@
-import Ask from 'https://deno.land/x/ask@1.0.6/mod.ts'
-import { create } from 'https://deno.land/x/djwt@v2.3/mod.ts'
-import { assert } from 'https://deno.land/std@0.106.0/testing/asserts.ts'
+import Ask from 'ask'
+import { assertEquals } from 'asserts'
+import jwt from './lib/jwt.js'
 
 const test = Deno.test
 const ask = new Ask()
 
+console.log('hyper test suite ⚡️')
 const answers = await ask.prompt([
   {
     name: 'hyper',
     type: 'input',
-    message: 'hyper:'
+    message: 'hyper (http://localhost:6363):'
   }
 ])
 
-console.log(answers)
+const hyper = new URL(answers.hyper === '' ? 'http://localhost:6363' : answers.hyper)
 
-const hyper = new URL(answers.hyper)
+let headers = {
+  'Content-Type': 'application/json'
+}
 
-const key = await window.crypto.subtle.generateKey(
-  {
-    name: 'HMAC',
-    hash: { name: 'SHA-256' }
-  },
-  false,
-  ['sign', 'verify']
-)
-console.log(hyper)
+if (hyper.username !== '') {
+  const token = jwt(hyper.username, hyper.password)
+  console.log(token)
+  headers = { ...headers, Authorization: `Bearer ${token}` }
+}
 
-const jwt = await create({ alg: 'HS256', typ: 'JWT' }, { sub: hyper.username }, key)
+const url = `${hyper.protocol === 'hyperio:' ? 'https:' : 'http:'}//${hyper.host}`
 
 test('GET / - get root', async () => {
-  const res = await fetch(`https://${hyper.host}`, {
-    headers: {
-      Authorization: `Bearer ${jwt}`
-    }
+  const res = await fetch(url, {
+    headers
   }).then(r => r.json())
-
   assertEquals(res.name, 'hyper63')
 })
+
+const runTest = x => x.default(url, headers)
+
+await import('./data/get-index.js').then(runTest)
+await import('./data/put-data-test.js').then(runTest)
