@@ -1,41 +1,55 @@
-import crocks from 'crocks'
+import { $fetch, toJSON } from '../lib/utils.js'
 import { assert } from 'asserts'
 
-const { Async } = crocks
 const test = Deno.test
-const asyncFetch = Async.fromPromise(fetch)
-const toJSON = res => {
-  console.log(res)
-  if (!res.ok) { return Async.Rejected({ ok: false, status: res.status }) }
-  return Async.fromPromise(res.json.bind(res))()
-}
-
 
 export default function (url, headers) {
-  const setup = () => asyncFetch(`${url}/data/test`, {
+  const setup = () => $fetch(`${url}/data/test`, {
     method: 'PUT',
     headers
   }).chain(toJSON)
 
-  const createDocument = () => asyncFetch(`${url}/data/test`, {
+  const createDocument = (doc) => () => $fetch(`${url}/data/test`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      type: 'test'
-    })
+    body: JSON.stringify(doc)
   }).chain(toJSON)
 
-  const cleanUp = (id) => asyncFetch(`${url}/data/test/${id}`, {
+  const cleanUp = (id) => $fetch(`${url}/data/test/${id}`, {
     method: 'DELETE',
     headers
   }).chain(toJSON)
 
-  test('POST /data/:store', async () => {
+  test('POST /data/:store successfully', () => {
     return setup()
-      .chain(createDocument)
-      .map(r => (console.log(r), r))
+      .chain(createDocument({ type: 'test' }))
       .map(r => (assert(r.ok), r.id))
       .chain(cleanUp)
       .toPromise()
   })
+
+  test('POST /data/:store with id successfully', () => {
+    return setup()
+      .chain(createDocument({ id: '1', type: 'test' }))
+      .map(r => (assert(r.id === '1'), r.id))
+      .chain(cleanUp)
+      .toPromise()
+  })
+
+  test('POST /data/:store document conflict', () =>
+    setup()
+      .chain(createDocument({ id: '2', type: 'test' }))
+      .chain(createDocument({ id: '2', type: 'test' }))
+      .bimap(
+        e => {
+          console.log(e)
+          assert(true)
+          return '2'
+        },
+        // e => (assert(e.ok === false), '2'),
+        r => (assert(false), r.id)
+      )
+      .chain(cleanUp)
+      .toPromise()
+  )
 }

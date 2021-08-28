@@ -28,15 +28,16 @@ if (hyper.username !== '') {
 
 const url = `${hyper.protocol === 'hyperio:' ? 'https:' : 'http:'}//${hyper.host}`
 
-test('GET / - get root', async () => {
-  const res = await fetch(url, {
-    headers
-  }).then(r => r.json())
-  assertEquals(res.name, 'hyper63')
-})
+
+const { services } = await fetch(url, {
+  headers
+}).then(r => r.json())
 
 const runTest = x => x.default(url, headers)
 
-await import('./data/get-index.js').then(runTest)
-await import('./data/put-data-test.js').then(runTest)
-await import('./data/create-document.js').then(runTest)
+if (services.includes('data')) {
+  await import('./data/get-index.js').then(runTest)
+  await import('./data/put-data-test.js').then(runTest)
+  await import('./data/create-document.js').then(runTest)
+  //await import('./data/update-document.js').then(runTest)
+}
