@@ -1,5 +1,8 @@
 import { $fetch, toJSON } from '../lib/utils.js'
-import { assert } from 'asserts'
+import { assert, assertEquals } from 'asserts'
+import crocks from 'crocks'
+
+const { Async } = crocks
 
 const test = Deno.test
 
@@ -40,16 +43,8 @@ export default function (url, headers) {
     setup()
       .chain(createDocument({ id: '2', type: 'test' }))
       .chain(createDocument({ id: '2', type: 'test' }))
-      .bimap(
-        e => {
-          console.log(e)
-          assert(true)
-          return '2'
-        },
-        // e => (assert(e.ok === false), '2'),
-        r => (assert(false), r.id)
-      )
-      .chain(cleanUp)
+      .map(r => (assertEquals(r.ok, false), r))
       .toPromise()
+
   )
 }
