@@ -39,3 +39,4 @@ const runTest = x => x.default(url, headers)
 
 await import('./data/get-index.js').then(runTest)
 await import('./data/put-data-test.js').then(runTest)
+await import('./data/create-document.js').then(runTest)
