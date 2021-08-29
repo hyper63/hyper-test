@@ -23,6 +23,12 @@ export default function (url, headers) {
     headers
   }).chain(toJSON)
 
+  const createDocForDb = (db, doc) => $fetch(`${url}/data/${db}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(doc)
+  }).chain(toJSON)
+
   test('POST /data/:store successfully', () => {
     return setup()
       .chain(createDocument({ type: 'test' }))
@@ -46,5 +52,15 @@ export default function (url, headers) {
       .map(r => (assertEquals(r.ok, false), r))
       .toPromise()
 
+  )
+
+  test('POST /data/:store where store does not exist', () =>
+    createDocForDb('none', { id: '3', type: 'test' })
+      .map(r => {
+        assertEquals(r.ok, false)
+        assertEquals(r.status, 404)
+        return r
+      })
+      .toPromise()
   )
 }
