@@ -17,4 +17,3 @@
 ```
 ./hyper-test url=http://localhost:6363
 ```
-
