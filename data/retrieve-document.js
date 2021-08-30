@@ -1,8 +1,5 @@
 import { $fetch, toJSON } from "../lib/utils.js";
-import { assert, assertEquals } from "asserts";
-import crocks from "crocks";
-
-const { Async } = crocks;
+import { assertEquals } from "asserts";
 
 const test = Deno.test;
 

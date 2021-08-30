@@ -28,9 +28,8 @@ if (hyper.username !== "") {
   headers = { ...headers, Authorization: `Bearer ${token}` };
 }
 
-const url = `${
-  hyper.protocol === "hyperio:" ? "https:" : "http:"
-}//${hyper.host}`;
+const url = `${hyper.protocol === "hyperio:" ? "https:" : "http:"
+  }//${hyper.host}`;
 
 const { services } = await fetch(url, {
   headers,
@@ -43,5 +42,5 @@ if (services.includes("data")) {
   await import("./data/put-data-test.js").then(runTest);
   await import("./data/create-document.js").then(runTest);
   await import("./data/retrieve-document.js").then(runTest);
-  //await import('./data/update-document.js').then(runTest)
+  await import('./data/update-document.js').then(runTest)
 }
