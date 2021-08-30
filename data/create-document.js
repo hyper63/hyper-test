@@ -29,38 +29,53 @@ export default function (url, headers) {
     body: JSON.stringify(doc)
   }).chain(toJSON)
 
-  test('POST /data/:store successfully', () => {
-    return setup()
+  const removeDb = (db) => $fetch(`${url}/data/${db}`, { method: 'DELETE' })
+    .chain(toJSON)
+
+  test('POST /data/:store successfully', () =>
+    setup()
       .chain(createDocument({ type: 'test' }))
       .map(r => (assert(r.ok), r.id))
       .chain(cleanUp)
       .toPromise()
-  })
+  )
 
   test('POST /data/:store with id successfully', () => {
     return setup()
-      .chain(createDocument({ id: '1', type: 'test' }))
-      .map(r => (assert(r.id === '1'), r.id))
+      .chain(createDocument({ id: '10', type: 'test' }))
+      .map(r => (assert(r.id === '10'), r.id))
       .chain(cleanUp)
       .toPromise()
   })
+
 
   test('POST /data/:store document conflict', () =>
     setup()
       .chain(createDocument({ id: '2', type: 'test' }))
       .chain(createDocument({ id: '2', type: 'test' }))
-      .map(r => (assertEquals(r.ok, false), r))
+      .map(r => (assertEquals(r.ok, false), r.id))
+      .chain(cleanUp)
       .toPromise()
 
   )
-
-  test('POST /data/:store where store does not exist', () =>
-    createDocForDb('none', { id: '3', type: 'test' })
+  // maybe default behavior should be to create store?
+  test('POST /data/:store create store does not exist', () =>
+    createDocForDb('none', { id: '30', type: 'test' })
       .map(r => {
-        assertEquals(r.ok, false)
-        assertEquals(r.status, 404)
+        assertEquals(r.ok, true)
+        assertEquals(r.id, '30')
         return r
       })
+      // tear down
+      .chain(() => removeDb('none'))
+      .toPromise()
+  )
+
+  test('POST /data/:store with no document', () =>
+    createDocument()()
+      .map(r => (assertEquals(r.ok, false), r))
+      .map(r => (assertEquals(r.status, 400), r))
+      //.map(r => (assertEquals(r.msg, 'empty document not allowed'), r))
       .toPromise()
   )
 }
