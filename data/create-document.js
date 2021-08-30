@@ -1,5 +1,8 @@
 import { $fetch, toJSON } from '../lib/utils.js'
-import { assert } from 'asserts'
+import { assert, assertEquals } from 'asserts'
+import crocks from 'crocks'
+
+const { Async } = crocks
 
 const test = Deno.test
 
@@ -20,36 +23,59 @@ export default function (url, headers) {
     headers
   }).chain(toJSON)
 
-  test('POST /data/:store successfully', () => {
-    return setup()
+  const createDocForDb = (db, doc) => $fetch(`${url}/data/${db}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(doc)
+  }).chain(toJSON)
+
+  const removeDb = (db) => $fetch(`${url}/data/${db}`, { method: 'DELETE' })
+    .chain(toJSON)
+
+  test('POST /data/:store successfully', () =>
+    setup()
       .chain(createDocument({ type: 'test' }))
       .map(r => (assert(r.ok), r.id))
       .chain(cleanUp)
       .toPromise()
-  })
+  )
 
   test('POST /data/:store with id successfully', () => {
     return setup()
-      .chain(createDocument({ id: '1', type: 'test' }))
-      .map(r => (assert(r.id === '1'), r.id))
+      .chain(createDocument({ id: '10', type: 'test' }))
+      .map(r => (assert(r.id === '10'), r.id))
       .chain(cleanUp)
       .toPromise()
   })
+
 
   test('POST /data/:store document conflict', () =>
     setup()
       .chain(createDocument({ id: '2', type: 'test' }))
       .chain(createDocument({ id: '2', type: 'test' }))
-      .bimap(
-        e => {
-          console.log(e)
-          assert(true)
-          return '2'
-        },
-        // e => (assert(e.ok === false), '2'),
-        r => (assert(false), r.id)
-      )
+      .map(r => (assertEquals(r.ok, false), r.id))
       .chain(cleanUp)
+      .toPromise()
+
+  )
+  // maybe default behavior should be to create store?
+  test('POST /data/:store create store does not exist', () =>
+    createDocForDb('none', { id: '30', type: 'test' })
+      .map(r => {
+        assertEquals(r.ok, true)
+        assertEquals(r.id, '30')
+        return r
+      })
+      // tear down
+      .chain(() => removeDb('none'))
+      .toPromise()
+  )
+
+  test('POST /data/:store with no document', () =>
+    createDocument()()
+      .map(r => (assertEquals(r.ok, false), r))
+      .map(r => (assertEquals(r.status, 400), r))
+      //.map(r => (assertEquals(r.msg, 'empty document not allowed'), r))
       .toPromise()
   )
 }
