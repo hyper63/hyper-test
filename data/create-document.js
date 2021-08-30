@@ -58,16 +58,14 @@ export default function (url, headers) {
       .toPromise()
 
   )
-  // maybe default behavior should be to create store?
-  test('POST /data/:store create store does not exist', () =>
+  // return error if store does not exist
+  test('POST /data/:store error if store does not exist', () =>
     createDocForDb('none', { id: '30', type: 'test' })
       .map(r => {
-        assertEquals(r.ok, true)
-        assertEquals(r.id, '30')
+        assertEquals(r.ok, false)
+        assertEquals(r.status, 400)
         return r
       })
-      // tear down
-      .chain(() => removeDb('none'))
       .toPromise()
   )
 
