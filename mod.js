@@ -43,4 +43,6 @@ if (services.includes("data")) {
   await import("./data/create-document.js").then(runTest);
   await import("./data/retrieve-document.js").then(runTest);
   await import('./data/update-document.js').then(runTest)
+  await import('./data/remove-document.js').then(runTest)
+  await import('./data/list-documents.js').then(runTest)
 }
