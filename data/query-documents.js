@@ -1,5 +1,5 @@
 import crocks from "crocks";
-import { assoc, map } from "ramda";
+import { assoc, map, keys } from "ramda";
 import { $fetch, toJSON } from "../lib/utils.js";
 import { assertEquals } from "asserts";
 
@@ -51,6 +51,7 @@ export default function (url, headers) {
   const tearDown = () =>
     Async.of(albums)
       .map(map(assoc("_deleted", true)))
+      .map(_ => (console.log(_), _))
       .chain((docs) =>
         $fetch(`${url}/data/test/_bulk`, {
           method: "POST",
@@ -60,7 +61,7 @@ export default function (url, headers) {
       )
       .chain(toJSON);
 
-  test("query documents of type album", () =>
+  test("POST /data/:store/_query - query documents of type album", () =>
     setup()
       .chain(query({ selector: { type: "album" } }))
       .map((r) => (assertEquals(r.ok, true), r))
@@ -68,11 +69,44 @@ export default function (url, headers) {
       .chain(tearDown)
       .toPromise());
 
-  test('query documents with no selector', () =>
+
+  test('POST /data/:store/_query - query documents with no selector', () =>
     setup()
       .chain(query())
-      .map(v => (console.log(v), v))
+      .map(r => (assertEquals(r.docs.length, 6)))
       .chain(tearDown)
       .toPromise()
   )
+
+
+  test('POST /data/:store/_query - query selector with limit', () =>
+    setup()
+      .chain(query({ selector: { type: 'album' }, limit: 2 }))
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs.length, 2), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+  /*
+  Not working for dndb - tnw
+  test('POST /data/:store/_query - query selector with sort', () =>
+    setup()
+      .chain(query({ selector: { type: 'album' }, sort: [{ id: 'DESC' }] }))
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (console.log(r), r))
+      .map(r => (assertEquals(r.docs[0].id, '2005'), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+  
+  test('POST /data/:store/_query - query selector - select fields', () =>
+    setup()
+      .chain(query({ selector: { type: 'album' }, fields: ['id', 'band'] }))
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (console.log(r), r))
+      .map(r => (assertEquals(keys(r.docs[0]).length, 2), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+  */
 }
