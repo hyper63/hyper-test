@@ -1,5 +1,5 @@
 import crocks from 'crocks'
-import { map } from 'ramda'
+import { assoc, map } from 'ramda'
 import { $fetch, toJSON } from "../lib/utils.js";
 import { assertEquals } from "asserts";
 
@@ -32,21 +32,92 @@ export default function (url, headers) {
 
   const setup = () =>
     createDb()
-      .chain(() => Async.all(map(createDocument, docs)))
+      .chain(() => $fetch(`${url}/data/test/_bulk`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(docs)
+      }))
+      .chain(toJSON)
 
   const listDocuments = (flags = {}) => () =>
     $fetch(`${url}/data/test?${new URLSearchParams(flags).toString()}`, {
       headers
     }).chain(toJSON)
 
+  const tearDown = () =>
+    Async.of(docs)
+      .map(map(assoc('_deleted', true)))
+      .chain(docs => $fetch(`${url}/data/test/_bulk`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(docs)
+      }))
+      .chain(toJSON)
+
   test('GET /data/test - get docs with no flags', () =>
     setup()
       .chain(listDocuments())
-      .map(r => (console.log(r), r))
       .map(r => (assertEquals(r.ok, true), r))
       .map(r => (assertEquals(r.docs.length, 10), r))
+      .chain(tearDown)
       .toPromise()
   )
 
+  test("GET /data/test?keys=['1002', '1005', '1008']", () =>
+    setup()
+      .chain(listDocuments({ keys: ['1002', '1005', '1008'] }))
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs.length, 3), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+
+  test("GET /data/test?startkey=1004", () =>
+    setup()
+      .chain(listDocuments({ startkey: '1004' }))
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs.length, 7), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+
+  test("GET /data/test?endkey=1008", () =>
+    setup()
+      .chain(listDocuments({ endkey: '1008' }))
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs.length, 8), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+
+  test("GET /data/test?startkey=1004&endkey=1008", () =>
+    setup()
+      .chain(listDocuments({ startkey: '1004', endkey: '1008' }))
+
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs.length, 5), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+
+  test("GET /data/test?limt=2", () =>
+    setup()
+      .chain(listDocuments({ limit: 2 }))
+
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs.length, 2), r))
+      .chain(tearDown)
+      .toPromise()
+  )
+
+  test("GET /data/test?descending=true", () =>
+    setup()
+      .chain(listDocuments({ descending: true }))
+
+      .map(r => (assertEquals(r.ok, true), r))
+      .map(r => (assertEquals(r.docs[0].id, '2'), r))
+      .chain(tearDown)
+      .toPromise()
+  )
 
 }
