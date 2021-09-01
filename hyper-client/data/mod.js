@@ -1,7 +1,6 @@
-import { crocks, R } from '../deps.js'
+import { crocks } from '../deps.js'
 
-const { Reader, chain } = crocks
-const { compose } = R
+const { Reader } = crocks
 
 const addBody = body => Reader.ask(req => new Request(req, { method: 'POST', body: JSON.stringify(body) }))
 const addQueryParams = params => Reader.ask(req => new Request(`${req.url}?${params}`, {
