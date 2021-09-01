@@ -28,7 +28,15 @@ export default function (connectionString) {
     return {
       data: {
         add: (body) => data.add(body).runWith(buildRequest('data')),
-        list: (params) => data.list(params).runWith(buildRequest('data'))
+        list: (params) => data.list(params).runWith(buildRequest('data')),
+        get: (id) => data.get(id).runWith(buildRequest('data')),
+        update: (id, body) => data.update(id, body).runWith(buildRequest('data')),
+        remove: (id) => data.remove(id).runWith(buildRequest('data')),
+        query: (selector, options) => data.query(selector, options).runWith(buildRequest('data')),
+        bulk: (docs) => data.bulk(docs).runWith(buildRequest('data')),
+        create: () => data.create().runWith(buildRequest('data')),
+        destroy: (confirm) => data.destroy(confirm).runWith(buildRequest('data')),
+        index: (name, fields) => data.index(name, fields).runWith(buildRequest('data'))
       }
     }
   }

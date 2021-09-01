@@ -3,33 +3,22 @@ import { assertEquals } from "asserts";
 
 const test = Deno.test;
 
-export default function (url, headers) {
+export default function (data) {
   const setup = () =>
-    $fetch(`${url}/data/test`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ id: "42", type: "test" }),
-    }).chain(toJSON);
+    $fetch(
+      data.add({ id: "42", type: "test" })
+    ).chain(toJSON);
 
   const tearDown = () =>
-    $fetch(`${url}/data/test/42`, {
-      method: "DELETE",
-      headers,
-    }).chain(toJSON);
+    $fetch(data.remove('42')).chain(toJSON);
 
   const retrieve = (id) =>
-    () => $fetch(`${url}/data/test/${id}`, { headers }).chain(toJSON);
+    () => $fetch(data.get(id)).chain(toJSON);
 
   test("GET /data/:store/:id - get document that does not exist", () =>
-    $fetch(`${url}/data/test/99`, { headers })
+    $fetch(data.get('99'))
       .chain(toJSON)
       .map((result) => (assertEquals(result.status, 404), result))
-      .toPromise());
-
-  test("GET /data/:store/:id - get database not found", () =>
-    $fetch(`${url}/data/none/99`, { headers })
-      .chain(toJSON)
-      .map((result) => (assertEquals(result.status, 400), result))
       .toPromise());
 
   test("GET /data/:store/:id - success", () =>

@@ -24,46 +24,24 @@ const albums = [
   { id: "2005", type: "album", title: "Nevermind", band: "Nirvana" },
 ];
 
-export default function (url, headers) {
+export default function (data) {
   const setup = () =>
-    $fetch(`${url}/data/test`, {
-      method: "PUT",
-      headers,
-    })
-      .chain(toJSON)
-      .chain(() =>
-        $fetch(`${url}/data/test/_bulk`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(albums),
-        })
-      )
+    $fetch(data.bulk(albums))
       .chain(toJSON);
 
-  const query = (q) => () =>
-    $fetch(`${url}/data/test/_query`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(q)
-    })
+  const query = (selector, options) => () =>
+    $fetch(data.query(selector, options))
       .chain(toJSON)
 
   const tearDown = () =>
     Async.of(albums)
       .map(map(assoc("_deleted", true)))
-      .map(_ => (console.log(_), _))
-      .chain((docs) =>
-        $fetch(`${url}/data/test/_bulk`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(docs),
-        })
-      )
+      .chain((docs) => $fetch(data.bulk(docs)))
       .chain(toJSON);
 
   test("POST /data/:store/_query - query documents of type album", () =>
     setup()
-      .chain(query({ selector: { type: "album" } }))
+      .chain(query({ type: "album" }))
       .map((r) => (assertEquals(r.ok, true), r))
       .map((r) => (assertEquals(r.docs.length, 5), r))
       .chain(tearDown)
@@ -81,17 +59,18 @@ export default function (url, headers) {
 
   test('POST /data/:store/_query - query selector with limit', () =>
     setup()
-      .chain(query({ selector: { type: 'album' }, limit: 2 }))
+      .chain(query({ type: 'album' }, { limit: 2 }))
       .map(r => (assertEquals(r.ok, true), r))
       .map(r => (assertEquals(r.docs.length, 2), r))
       .chain(tearDown)
       .toPromise()
   )
+
   /*
-  Not working for dndb - tnw
   test('POST /data/:store/_query - query selector with sort', () =>
     setup()
-      .chain(query({ selector: { type: 'album' }, sort: [{ id: 'DESC' }] }))
+      .chain(query({ type: 'album' }, { sort: [{ id: 'DESC' }] }))
+      .map(r => (console.log(r), r))
       .map(r => (assertEquals(r.ok, true), r))
       .map(r => (console.log(r), r))
       .map(r => (assertEquals(r.docs[0].id, '2005'), r))
@@ -99,9 +78,11 @@ export default function (url, headers) {
       .toPromise()
   )
   
+
   test('POST /data/:store/_query - query selector - select fields', () =>
     setup()
-      .chain(query({ selector: { type: 'album' }, fields: ['id', 'band'] }))
+      .chain(query({ type: 'album' }, { fields: ['id', 'band'] }))
+      .map(r => (console.log(r), r))
       .map(r => (assertEquals(r.ok, true), r))
       .map(r => (console.log(r), r))
       .map(r => (assertEquals(keys(r.docs[0]).length, 2), r))
@@ -109,4 +90,5 @@ export default function (url, headers) {
       .toPromise()
   )
   */
+
 }

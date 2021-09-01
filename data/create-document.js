@@ -1,65 +1,47 @@
 import { $fetch, toJSON } from "../lib/utils.js";
 import { assert, assertEquals } from "asserts";
-import crocks from "crocks";
-
-const { Async } = crocks;
 
 const test = Deno.test;
 
-export default function (url, headers) {
-  const setup = () =>
-    $fetch(`${url}/data/test`, {
-      method: "PUT",
-      headers,
-    }).chain(toJSON);
-
+export default function (data) {
   const createDocument = (doc) =>
-    () =>
-      $fetch(`${url}/data/test`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(doc),
-      }).chain(toJSON);
+    $fetch(data.add(doc)).chain(toJSON);
 
   const cleanUp = (id) =>
-    $fetch(`${url}/data/test/${id}`, {
-      method: "DELETE",
-      headers,
-    }).chain(toJSON);
+    $fetch(data.remove(id)).chain(toJSON);
 
-  const createDocForDb = (db, doc) =>
-    $fetch(`${url}/data/${db}`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(doc),
-    }).chain(toJSON);
-
-  const removeDb = (db) =>
-    $fetch(`${url}/data/${db}`, { method: "DELETE" })
-      .chain(toJSON);
+  const createDocForDb = (db, doc) => {
+    let req = data.add(doc)
+    let _req = new Request(req.url + 'db', {
+      method: 'POST',
+      headers: req.headers,
+      body: JSON.stringify(doc)
+    })
+    return $fetch(_req).chain(toJSON);
+  }
 
   test("POST /data/:store successfully", () =>
-    setup()
-      .chain(createDocument({ type: "test" }))
+    createDocument({ type: "test" })
       .map((r) => (assert(r.ok), r.id))
       .chain(cleanUp)
       .toPromise());
 
-  test("POST /data/:store with id successfully", () => {
-    return setup()
-      .chain(createDocument({ id: "10", type: "test" }))
+  test("POST /data/:store with id successfully", () =>
+    createDocument({ id: "10", type: "test" })
       .map((r) => (assert(r.id === "10"), r.id))
       .chain(cleanUp)
-      .toPromise();
-  });
+      .toPromise());
+
 
   test("POST /data/:store document conflict", () =>
-    setup()
-      .chain(createDocument({ id: "2", type: "test" }))
-      .chain(createDocument({ id: "2", type: "test" }))
+    createDocument({ id: "2", type: "test" })
+      .chain(() => createDocument({ id: "2", type: "test" }))
       .map((r) => (assertEquals(r.ok, false), r.id))
       .chain(cleanUp)
-      .toPromise());
+      .toPromise()
+  );
+
+
   // return error if store does not exist
   test("POST /data/:store error if store does not exist", () =>
     createDocForDb("none", { id: "30", type: "test" })
@@ -71,9 +53,10 @@ export default function (url, headers) {
       .toPromise());
 
   test("POST /data/:store with no document", () =>
-    createDocument()()
+    createDocument()
       .map((r) => (assertEquals(r.ok, false), r))
       .map((r) => (assertEquals(r.status, 400), r))
       //.map(r => (assertEquals(r.msg, 'empty document not allowed'), r))
       .toPromise());
+
 }
