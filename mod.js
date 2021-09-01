@@ -28,9 +28,8 @@ if (hyper.username !== "") {
   headers = { ...headers, Authorization: `Bearer ${token}` };
 }
 
-const url = `${
-  hyper.protocol === "hyperio:" ? "https:" : "http:"
-}//${hyper.host}`;
+const url = `${hyper.protocol === "hyperio:" ? "https:" : "http:"
+  }//${hyper.host}`;
 
 const { services } = await fetch(url, {
   headers,
@@ -47,4 +46,5 @@ if (services.includes("data")) {
   await import("./data/remove-document.js").then(runTest);
   await import("./data/list-documents.js").then(runTest);
   await import("./data/query-documents.js").then(runTest);
+  await import("./data/bulk-documents.js").then(runTest);
 }
