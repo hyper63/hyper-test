@@ -71,7 +71,7 @@ export default function (data) {
     setup()
       .chain(query({ type: 'album' }, { sort: [{ title: 'DESC' }] }))
       .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (assertEquals(r.docs[0]._id, '2004'), r))
+      .map(r => (assertEquals(r.docs[0].id, '2004'), r))
       .chain(tearDown)
       .toPromise()
   )
