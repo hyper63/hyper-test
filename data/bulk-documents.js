@@ -37,10 +37,8 @@ export default function (data) {
     loadTeams()
       .chain(updateTeams)
       .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (console.log(r), r))
       .chain(() =>
         $fetch(data.query({ type: 'team', active: true }))).chain(toJSON)
-      .map(r => (console.log(r), r))
       .map(r => (assertEquals(r.docs.length, 6), r))
       .chain(tearDown)
       .toPromise()

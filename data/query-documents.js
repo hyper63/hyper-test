@@ -1,5 +1,5 @@
 import crocks from "crocks";
-import { assoc, map } from "ramda";
+import { assoc, map, keys } from "ramda";
 import { $fetch, toJSON } from "../lib/utils.js";
 import { assertEquals } from "asserts";
 
@@ -66,29 +66,25 @@ export default function (data) {
       .toPromise()
   )
 
-  /*
+
   test('POST /data/:store/_query - query selector with sort', () =>
     setup()
-      .chain(query({ type: 'album' }, { sort: [{ id: 'DESC' }] }))
-      .map(r => (console.log(r), r))
+      .chain(query({ type: 'album' }, { sort: [{ title: 'DESC' }] }))
       .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (console.log(r), r))
-      .map(r => (assertEquals(r.docs[0].id, '2005'), r))
+      .map(r => (assertEquals(r.docs[0]._id, '2004'), r))
       .chain(tearDown)
       .toPromise()
   )
-  
+
 
   test('POST /data/:store/_query - query selector - select fields', () =>
     setup()
       .chain(query({ type: 'album' }, { fields: ['id', 'band'] }))
-      .map(r => (console.log(r), r))
       .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (console.log(r), r))
       .map(r => (assertEquals(keys(r.docs[0]).length, 2), r))
       .chain(tearDown)
       .toPromise()
   )
-  */
+
 
 }
