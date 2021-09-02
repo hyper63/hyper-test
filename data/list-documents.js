@@ -80,19 +80,17 @@ export default function (data) {
     setup()
       .chain(() => listDocuments({ limit: 2 }))
       .map((r) => (assertEquals(r.ok, true), r))
-      .map(r => (console.log(r), r))
       .map((r) => (assertEquals(r.docs.length, 2), r))
       .chain(tearDown)
       .toPromise());
 
-  /*
-   test("GET /data/test?descending=true", () =>
-     setup()
-       .chain(() => listDocuments({ descending: true }))
-       .map((r) => (assertEquals(r.ok, true), r))
-       .map((r) => (assertEquals(r.docs[0].id, "2"), r))
-       .chain(tearDown)
-       .toPromise());
-   */
+
+  test("GET /data/test?descending=true", () =>
+    setup()
+      .chain(() => listDocuments({ descending: true }))
+      .map((r) => (assertEquals(r.ok, true), r))
+      .map((r) => (assertEquals(r.docs[r.docs.length - 1].id, "1001"), r))
+      .chain(tearDown)
+      .toPromise());
 
 }

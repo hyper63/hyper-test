@@ -32,10 +32,10 @@ if (!hyper.info.isCloud) {
 const runTest = svc => (x) => x.default(hyper[svc]);
 
 if (services.includes("data")) {
-  // await import("./data/create-document.js").then(runTest('data'));
-  // await import("./data/retrieve-document.js").then(runTest('data'));
-  // await import("./data/update-document.js").then(runTest('data'));
-  // await import("./data/remove-document.js").then(runTest('data'));
+  await import("./data/create-document.js").then(runTest('data'));
+  await import("./data/retrieve-document.js").then(runTest('data'));
+  await import("./data/update-document.js").then(runTest('data'));
+  await import("./data/remove-document.js").then(runTest('data'));
   await import("./data/list-documents.js").then(runTest('data'));
   //await import("./data/query-documents.js").then(runTest('data'));
   //await import("./data/bulk-documents.js").then(runTest('data'));
