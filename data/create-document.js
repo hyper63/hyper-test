@@ -36,8 +36,9 @@ export default function (data) {
   test("POST /data/:store document conflict", () =>
     createDocument({ id: "2", type: "test" })
       .chain(() => createDocument({ id: "2", type: "test" }))
-      .map((r) => (assertEquals(r.ok, false), r.id))
-      .chain(cleanUp)
+      .map((r) => (assertEquals(r.ok, false), r))
+      .map((r) => (assertEquals(r.status, 409), r.id))
+      .chain(() => cleanUp('2'))
       .toPromise()
   );
 

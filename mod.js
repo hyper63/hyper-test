@@ -22,21 +22,23 @@ const { services } = await fetch(url, {
 }).then((r) => r.json());
 */
 const hyper = connect(hyperCS)()
-// create app/domain instance
-await fetch(hyper.data.destroy(true))
-await fetch(hyper.data.create())
+
+if (!hyper.info.isCloud) {
+  // create app/domain instance
+  await fetch(hyper.data.destroy(true))
+  await fetch(hyper.data.create())
+}
 
 const runTest = svc => (x) => x.default(hyper[svc]);
 
-
 if (services.includes("data")) {
-  await import("./data/create-document.js").then(runTest('data'));
-  await import("./data/retrieve-document.js").then(runTest('data'));
-  await import("./data/update-document.js").then(runTest('data'));
-  await import("./data/remove-document.js").then(runTest('data'));
+  // await import("./data/create-document.js").then(runTest('data'));
+  // await import("./data/retrieve-document.js").then(runTest('data'));
+  // await import("./data/update-document.js").then(runTest('data'));
+  // await import("./data/remove-document.js").then(runTest('data'));
   await import("./data/list-documents.js").then(runTest('data'));
-  await import("./data/query-documents.js").then(runTest('data'));
-  await import("./data/bulk-documents.js").then(runTest('data'));
+  //await import("./data/query-documents.js").then(runTest('data'));
+  //await import("./data/bulk-documents.js").then(runTest('data'));
 }
 
 if (services.includes('cache')) {

@@ -3,9 +3,10 @@ import data from './data/mod.js'
 export default function (connectionString) {
   const cs = new URL(connectionString)
   const createToken = (u, p) => `${u}:${p}` // need to change to create jwt
+  const isHyperCloud = cs.protocol === 'cloud:'
 
   const buildRequest = service => {
-    const isHyperCloud = cs.protocol === 'cloud:'
+
     const protocol = isHyperCloud ? 'https:' : cs.protocol
 
     let headers = {
@@ -37,6 +38,9 @@ export default function (connectionString) {
         create: () => data.create().runWith(buildRequest('data')),
         destroy: (confirm) => data.destroy(confirm).runWith(buildRequest('data')),
         index: (name, fields) => data.index(name, fields).runWith(buildRequest('data'))
+      },
+      info: {
+        isCloud: isHyperCloud
       }
     }
   }

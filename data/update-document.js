@@ -23,7 +23,7 @@ export default function (data) {
   test("PUT /data/:store/:id - update document should be successful", () =>
     create({ id: "63", type: "test" })
       .chain(
-        () => update({ db: "test", doc: { id: "63", type: "test", name: "foo" } }),
+        () => update({ id: "63", doc: { id: "63", type: "test", name: "foo" } }),
       )
       .map((result) => (assertEquals(result.ok, true), '63'))
       .chain(remove) // cleanup
