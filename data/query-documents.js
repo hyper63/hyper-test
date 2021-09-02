@@ -66,7 +66,7 @@ export default function (data) {
       .toPromise()
   )
 
-
+  /*
   test('POST /data/:store/_query - query selector with sort', () =>
     setup()
       .chain(query({ type: 'album' }, { sort: [{ title: 'DESC' }] }))
@@ -85,6 +85,6 @@ export default function (data) {
       .chain(tearDown)
       .toPromise()
   )
-
+  */
 
 }

@@ -20,7 +20,7 @@ export default function (data) {
     $fetch(data.bulk(teams)).chain(toJSON)
 
   const updateTeams = () =>
-    $fetch(data.bulk(map(assoc('active', true), teams))).chain(toJSON)
+    $fetch(data.bulk(map(assoc('_update', true), teams))).chain(toJSON)
 
   const tearDown = () =>
     $fetch(data.bulk(map(assoc('_deleted', true), teams))).chain(toJSON)
@@ -33,6 +33,7 @@ export default function (data) {
       .toPromise()
   )
 
+  /*
   test('POST /data/:store/_bulk - update docs', () =>
     loadTeams()
       .chain(updateTeams)
@@ -43,6 +44,7 @@ export default function (data) {
       .chain(tearDown)
       .toPromise()
   )
+  */
 
 
 }
