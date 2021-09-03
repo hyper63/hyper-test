@@ -57,6 +57,7 @@ export default function (connectionString) {
         add: (key, value, ttl) =>
           cache.add(key, value, ttl).runWith(buildRequest("cache")),
         remove: (key) => cache.remove(key).runWith(buildRequest("cache")),
+        get: (key) => cache.get(key).runWith(buildRequest("cache")),
       },
       info: {
         isCloud: isHyperCloud,

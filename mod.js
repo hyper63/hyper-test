@@ -47,4 +47,7 @@ if (services.includes("cache")) {
     await fetch(hyper.cache.create());
   }
   await import("./cache/create-key.js").then(runTest("cache"));
+  await import("./cache/get-key.js").then(runTest("cache"));
+  await import('./cache/remove-key.js').then(runTest('cache'))
+  await import('./cache/set-key.js').then(runTest('cache'))
 }

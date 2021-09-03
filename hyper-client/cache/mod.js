@@ -28,15 +28,16 @@ const remove = (key) =>
   appendPath(key)
     .map((req) => new Request(req, { method: "DELETE" }));
 
+const get = appendPath;
+
 export default {
   create,
   destroy,
   add,
+  get,
   remove,
   /*
   set,
-  get,
-  remove,
   query,
   */
 };

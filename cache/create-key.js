@@ -1,24 +1,23 @@
-import { $fetch, toJSON } from "../lib/utils.js";
+import { $, $fetch, toJSON } from "../lib/utils.js";
 import { assert, assertEquals } from "asserts";
 
 const test = Deno.test;
 
 export default function (cache) {
-  const createKV = (key, value) => $fetch(cache.add(key, value)).chain(toJSON);
+  const createKV = (key, value, ttl) =>
+    $fetch(cache.add(key, value, ttl)).chain(toJSON);
 
   const cleanUp = (key) => $fetch(cache.remove(key)).chain(toJSON);
 
-
   const createDocForDb = (db, key, value) => {
-    let req = cache.add(key, value)
-    let _req = new Request(req.url + 'db', {
-      method: 'POST',
+    let req = cache.add(key, value);
+    let _req = new Request(req.url + "db", {
+      method: "POST",
       headers: req.headers,
-      body: JSON.stringify({ key, value })
-    })
+      body: JSON.stringify({ key, value }),
+    });
     return $fetch(_req).chain(toJSON);
-  }
-
+  };
 
   test("POST /cache/:store successfully", () =>
     createKV("1", { type: "movie", title: "Ghostbusters" })
@@ -52,4 +51,13 @@ export default function (cache) {
       //.map(r => (assertEquals(r.msg, 'empty document not allowed'), r))
       .toPromise());
 
+  /*
+  test("POST /cache/:store with ttl", () =>
+    createKV("10", { type: 'movie', title: 'Avengers' }, '10s')
+      //.chain($.fromPromise(new Promise(r => setTimeout(r, 15000))))
+      //.chain(() => $fetch(cache.get("10")))
+      .map(v => (assertEquals(true, true), v))
+      .map(v => (console.log(v), v))
+      .toPromise())
+  */
 }
