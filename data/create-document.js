@@ -4,21 +4,19 @@ import { assert, assertEquals } from "asserts";
 const test = Deno.test;
 
 export default function (data) {
-  const createDocument = (doc) =>
-    $fetch(data.add(doc)).chain(toJSON);
+  const createDocument = (doc) => $fetch(data.add(doc)).chain(toJSON);
 
-  const cleanUp = (id) =>
-    $fetch(data.remove(id)).chain(toJSON);
+  const cleanUp = (id) => $fetch(data.remove(id)).chain(toJSON);
 
   const createDocForDb = (db, doc) => {
-    let req = data.add(doc)
-    let _req = new Request(req.url + 'db', {
-      method: 'POST',
+    let req = data.add(doc);
+    let _req = new Request(req.url + "db", {
+      method: "POST",
       headers: req.headers,
-      body: JSON.stringify(doc)
-    })
+      body: JSON.stringify(doc),
+    });
     return $fetch(_req).chain(toJSON);
-  }
+  };
 
   test("POST /data/:store successfully", () =>
     createDocument({ type: "test" })
@@ -32,16 +30,13 @@ export default function (data) {
       .chain(cleanUp)
       .toPromise());
 
-
   test("POST /data/:store document conflict", () =>
     createDocument({ id: "2", type: "test" })
       .chain(() => createDocument({ id: "2", type: "test" }))
       .map((r) => (assertEquals(r.ok, false), r))
       .map((r) => (assertEquals(r.status, 409), r.id))
-      .chain(() => cleanUp('2'))
-      .toPromise()
-  );
-
+      .chain(() => cleanUp("2"))
+      .toPromise());
 
   // return error if store does not exist
   test("POST /data/:store error if store does not exist", () =>
@@ -59,5 +54,4 @@ export default function (data) {
       .map((r) => (assertEquals(r.status, 400), r))
       //.map(r => (assertEquals(r.msg, 'empty document not allowed'), r))
       .toPromise());
-
 }

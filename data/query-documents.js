@@ -1,5 +1,5 @@
 import crocks from "crocks";
-import { assoc, map, keys } from "ramda";
+import { assoc, keys, map } from "ramda";
 import { $fetch, toJSON } from "../lib/utils.js";
 import { assertEquals } from "asserts";
 
@@ -29,9 +29,10 @@ export default function (data) {
     $fetch(data.bulk(albums))
       .chain(toJSON);
 
-  const query = (selector, options) => () =>
-    $fetch(data.query(selector, options))
-      .chain(toJSON)
+  const query = (selector, options) =>
+    () =>
+      $fetch(data.query(selector, options))
+        .chain(toJSON);
 
   const tearDown = () =>
     Async.of(albums)
@@ -47,44 +48,34 @@ export default function (data) {
       .chain(tearDown)
       .toPromise());
 
-
-  test('POST /data/:store/_query - query documents with no selector', () =>
+  test("POST /data/:store/_query - query documents with no selector", () =>
     setup()
       .chain(query())
-      .map(r => (assertEquals(r.docs.length, 5)))
+      .map((r) => (assertEquals(r.docs.length, 5)))
       .chain(tearDown)
-      .toPromise()
-  )
+      .toPromise());
 
-
-  test('POST /data/:store/_query - query selector with limit', () =>
+  test("POST /data/:store/_query - query selector with limit", () =>
     setup()
-      .chain(query({ type: 'album' }, { limit: 2 }))
-      .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (assertEquals(r.docs.length, 2), r))
+      .chain(query({ type: "album" }, { limit: 2 }))
+      .map((r) => (assertEquals(r.ok, true), r))
+      .map((r) => (assertEquals(r.docs.length, 2), r))
       .chain(tearDown)
-      .toPromise()
-  )
+      .toPromise());
 
-
-  test('POST /data/:store/_query - query selector with sort', () =>
+  test("POST /data/:store/_query - query selector with sort", () =>
     setup()
-      .chain(query({ type: 'album' }, { sort: [{ title: 'DESC' }] }))
-      .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (assertEquals(r.docs[0].id, '2004'), r))
+      .chain(query({ type: "album" }, { sort: [{ title: "DESC" }] }))
+      .map((r) => (assertEquals(r.ok, true), r))
+      .map((r) => (assertEquals(r.docs[0].id, "2004"), r))
       .chain(tearDown)
-      .toPromise()
-  )
+      .toPromise());
 
-
-  test('POST /data/:store/_query - query selector - select fields', () =>
+  test("POST /data/:store/_query - query selector - select fields", () =>
     setup()
-      .chain(query({ type: 'album' }, { fields: ['id', 'band'] }))
-      .map(r => (assertEquals(r.ok, true), r))
-      .map(r => (assertEquals(keys(r.docs[0]).length, 2), r))
+      .chain(query({ type: "album" }, { fields: ["id", "band"] }))
+      .map((r) => (assertEquals(r.ok, true), r))
+      .map((r) => (assertEquals(keys(r.docs[0]).length, 2), r))
       .chain(tearDown)
-      .toPromise()
-  )
-
-
+      .toPromise());
 }

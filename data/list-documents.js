@@ -21,10 +21,9 @@ const docs = [
 export default function (data) {
   const setup = () =>
     $fetch(data.bulk(docs))
-      .chain(toJSON)
+      .chain(toJSON);
 
-  const listDocuments = (flags = {}) =>
-    $fetch(data.list(flags)).chain(toJSON);
+  const listDocuments = (flags = {}) => $fetch(data.list(flags)).chain(toJSON);
 
   const tearDown = () =>
     Async.of(docs)
@@ -48,7 +47,6 @@ export default function (data) {
       .chain(tearDown)
       .toPromise());
 
-
   test("GET /data/test?startkey=1004", () =>
     setup()
       .chain(() => listDocuments({ startkey: "1004" }))
@@ -57,8 +55,6 @@ export default function (data) {
       .chain(tearDown)
       .toPromise());
 
-
-
   test("GET /data/test?endkey=1008", () =>
     setup()
       .chain(() => listDocuments({ endkey: "1008" }))
@@ -66,7 +62,6 @@ export default function (data) {
       .map((r) => (assertEquals(r.docs.length, 8), r))
       .chain(tearDown)
       .toPromise());
-
 
   test("GET /data/test?startkey=1004&endkey=1008", () =>
     setup()
@@ -84,7 +79,6 @@ export default function (data) {
       .chain(tearDown)
       .toPromise());
 
-
   test("GET /data/test?descending=true", () =>
     setup()
       .chain(() => listDocuments({ descending: true }))
@@ -92,5 +86,4 @@ export default function (data) {
       .map((r) => (assertEquals(r.docs[r.docs.length - 1].id, "1001"), r))
       .chain(tearDown)
       .toPromise());
-
 }

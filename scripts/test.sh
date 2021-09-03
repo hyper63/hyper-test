@@ -1,1 +1,1 @@
-deno test --allow-net --allow-read --import-map=import_map.json mod.js
+deno test --allow-env --allow-net --allow-read --import-map=import_map.json mod.js
