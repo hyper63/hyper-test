@@ -2,6 +2,10 @@ import { crocks } from "../deps.js";
 
 const { Reader } = crocks;
 
+const addQueryParams = params => Reader.ask(req => new Request(`${req.url}?${params}`, {
+  headers: req.headers
+}))
+
 const appendPath = (id) =>
   Reader.ask((req) =>
     new Request(`${req.url}/${id}`, {
@@ -30,14 +34,22 @@ const remove = (key) =>
 
 const get = appendPath;
 
+const set = (key, value, ttl) => appendPath(key)
+  .map((req) => new Request(req, { method: "PUT", body: JSON.stringify(value) }))
+  .map((req) => ttl ? new Request(`${req.url}?${new URLSearchParams({ ttl }).toString()}`, {
+    method: 'PUT',
+    headers: req.headers,
+    body: JSON.stringify(value)
+  }) : req)
+
 export default {
   create,
   destroy,
   add,
   get,
   remove,
+  set
   /*
-  set,
   query,
   */
 };

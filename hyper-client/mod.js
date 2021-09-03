@@ -22,7 +22,7 @@ export default function (connectionString) {
 
     return new Request(
       `${protocol}//${cs.host}${isHyperCloud ? cs.pathname : ""}${"/" +
-        service}${!isHyperCloud ? cs.pathname : ""}`,
+      service}${!isHyperCloud ? cs.pathname : ""}`,
       {
         headers,
       },
@@ -58,6 +58,7 @@ export default function (connectionString) {
           cache.add(key, value, ttl).runWith(buildRequest("cache")),
         remove: (key) => cache.remove(key).runWith(buildRequest("cache")),
         get: (key) => cache.get(key).runWith(buildRequest("cache")),
+        set: (key, value, ttl) => cache.set(key, value, ttl).runWith(buildRequest('cache'))
       },
       info: {
         isCloud: isHyperCloud,
