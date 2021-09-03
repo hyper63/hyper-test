@@ -9,11 +9,18 @@
 ## Table of contents
 
 - [Usage](#usage)
+- [Features](#features)
 
 ---
 
 ## Usage
 
 ```
-./hyper-test url=http://localhost:6363
+HYPER=http://localhost:6363/test ./hyper-test 
 ```
+
+## Features
+
+* Data Adapter Test Suite
+* Cache Adapter Test Suite
+

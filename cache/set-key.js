@@ -19,7 +19,7 @@ export default function (cache) {
   test('PUT /cache/:store/:key - set key that dont exist', () =>
     set('101', { type: 'movie', title: 'Aquaman' })
       .map(r => (assertEquals(r.ok, true), r))
-      .chain(() => remove('100'))
+      .chain(() => remove('101'))
       .toPromise()
   )
 

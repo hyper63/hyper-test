@@ -50,4 +50,5 @@ if (services.includes("cache")) {
   await import("./cache/get-key.js").then(runTest("cache"));
   await import('./cache/remove-key.js').then(runTest('cache'))
   await import('./cache/set-key.js').then(runTest('cache'))
+  await import('./cache/query-keys.js').then(runTest('cache'))
 }

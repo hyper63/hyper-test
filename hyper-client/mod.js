@@ -58,7 +58,8 @@ export default function (connectionString) {
           cache.add(key, value, ttl).runWith(buildRequest("cache")),
         remove: (key) => cache.remove(key).runWith(buildRequest("cache")),
         get: (key) => cache.get(key).runWith(buildRequest("cache")),
-        set: (key, value, ttl) => cache.set(key, value, ttl).runWith(buildRequest('cache'))
+        set: (key, value, ttl) => cache.set(key, value, ttl).runWith(buildRequest('cache')),
+        query: (pattern) => cache.query(pattern).runWith(buildRequest('cache'))
       },
       info: {
         isCloud: isHyperCloud,

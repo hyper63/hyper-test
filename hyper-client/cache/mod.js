@@ -42,14 +42,23 @@ const set = (key, value, ttl) => appendPath(key)
     body: JSON.stringify(value)
   }) : req)
 
+const query = pattern => Reader.ask(req => pattern
+  ? new Request(`${req.url}/_query?${new URLSearchParams({ pattern }).toString()}`, {
+    method: 'POST',
+    headers: req.headers
+  })
+  : new Request(`${req.url}/_query?${new URLSearchParams({ pattern: '*' }).toString()}`, {
+    method: 'POST',
+    headers: req.headers
+  })
+)
+
 export default {
   create,
   destroy,
   add,
   get,
   remove,
-  set
-  /*
-  query,
-  */
+  set,
+  query
 };
