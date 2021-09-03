@@ -51,7 +51,7 @@ export default function (data) {
   test('POST /data/:store/_query - query documents with no selector', () =>
     setup()
       .chain(query())
-      .map(r => (assertEquals(r.docs.length, 6)))
+      .map(r => (assertEquals(r.docs.length, 5)))
       .chain(tearDown)
       .toPromise()
   )
@@ -66,7 +66,7 @@ export default function (data) {
       .toPromise()
   )
 
-  /*
+
   test('POST /data/:store/_query - query selector with sort', () =>
     setup()
       .chain(query({ type: 'album' }, { sort: [{ title: 'DESC' }] }))
@@ -85,6 +85,6 @@ export default function (data) {
       .chain(tearDown)
       .toPromise()
   )
-  */
+
 
 }

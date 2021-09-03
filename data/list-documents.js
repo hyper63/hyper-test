@@ -36,7 +36,7 @@ export default function (data) {
     setup()
       .chain(listDocuments)
       .map((r) => (assertEquals(r.ok, true), r))
-      .map((r) => (assertEquals(r.docs.length, 10), r))
+      .map((r) => (assertEquals(r.docs.length, 9), r))
       .chain(tearDown)
       .toPromise());
 
@@ -53,7 +53,7 @@ export default function (data) {
     setup()
       .chain(() => listDocuments({ startkey: "1004" }))
       .map((r) => (assertEquals(r.ok, true), r))
-      .map((r) => (assertEquals(r.docs.length, 7), r))
+      .map((r) => (assertEquals(r.docs.length, 6), r))
       .chain(tearDown)
       .toPromise());
 
