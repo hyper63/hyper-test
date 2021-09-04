@@ -2,10 +2,6 @@ import { crocks } from "../deps.js";
 
 const { Reader } = crocks;
 
-const addQueryParams = params => Reader.ask(req => new Request(`${req.url}?${params}`, {
-  headers: req.headers
-}))
-
 const appendPath = (id) =>
   Reader.ask((req) =>
     new Request(`${req.url}/${id}`, {

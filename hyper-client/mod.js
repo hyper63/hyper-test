@@ -61,6 +61,10 @@ export default function (connectionString) {
         set: (key, value, ttl) => cache.set(key, value, ttl).runWith(buildRequest('cache')),
         query: (pattern) => cache.query(pattern).runWith(buildRequest('cache'))
       },
+      search: {
+        create: (fields, storeFields) => search.create(fields, storeFields).runWith(buildRequest('search')),
+        destroy: (confirm) => search.destroy(confirm).runWith(buildRequest('search'))
+      },
       info: {
         isCloud: isHyperCloud,
       },
