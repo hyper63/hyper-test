@@ -22,7 +22,6 @@ export default function (cache) {
   test("POST /cache/:store successfully", () =>
     createKV("1", { type: "movie", title: "Ghostbusters" })
       .map((r) => (assert(r.ok), r))
-      .map((r) => (console.log(r), r))
       .chain(() => cleanUp("1"))
       .toPromise());
 
