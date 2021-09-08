@@ -3,8 +3,7 @@ import cache from "./cache/mod.js";
 
 export default function (connectionString) {
   const cs = new URL(connectionString);
-  const isHyperCloud = cs.protocol === "cloud:";
-
+  
 
 
   /**

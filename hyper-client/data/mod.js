@@ -69,7 +69,7 @@ const index = (name, fields) =>
 
 const create = () => Reader.ask((req) => new Request(req, { method: "PUT" }));
 
-const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' })))
+const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' }))).chain(lift)
 
 const destroy = (confirm = false) =>
   confirm
