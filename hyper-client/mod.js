@@ -3,31 +3,9 @@ import cache from "./cache/mod.js";
 
 export default function (connectionString) {
   const cs = new URL(connectionString);
-  const createToken = (u, p) => `${u}:${p}`; // need to change to create jwt
   const isHyperCloud = cs.protocol === "cloud:";
 
-  const buildRequest = (service) => {
-    const protocol = isHyperCloud ? "https:" : cs.protocol;
 
-    let headers = {
-      "Content-Type": "application/json",
-    };
-
-    headers = cs.password !== ""
-      ? {
-        ...headers,
-        Authorization: `Bearer ${createToken(cs.username, cs.password)}`,
-      }
-      : headers;
-
-    return new Request(
-      `${protocol}//${cs.host}${isHyperCloud ? cs.pathname : ""}${"/" +
-      service}${!isHyperCloud ? cs.pathname : ""}`,
-      {
-        headers,
-      },
-    );
-  };
 
   /**
    * @param {string} domain
@@ -64,10 +42,7 @@ export default function (connectionString) {
       search: {
         create: (fields, storeFields) => search.create(fields, storeFields).runWith(buildRequest('search')),
         destroy: (confirm) => search.destroy(confirm).runWith(buildRequest('search'))
-      },
-      info: {
-        isCloud: isHyperCloud,
-      },
+      }
     };
   };
 }

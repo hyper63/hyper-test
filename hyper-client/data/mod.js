@@ -69,6 +69,8 @@ const index = (name, fields) =>
 
 const create = () => Reader.ask((req) => new Request(req, { method: "PUT" }));
 
+const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' })))
+
 const destroy = (confirm = false) =>
   confirm
     ? Reader.ask((req) => new Request(req, { method: "DELETE" }))
