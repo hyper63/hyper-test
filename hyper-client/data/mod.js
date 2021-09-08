@@ -1,11 +1,18 @@
 import { crocks } from "../deps.js";
 
-const { Reader } = crocks;
+const { Reader, ReaderT, Async } = crocks;
+
+const AsyncReader = ReaderT(Async)
+const { ask, lift } = AsyncReader
 
 const addBody = (body) =>
-  Reader.ask((req) =>
-    new Request(req, { method: "POST", body: JSON.stringify(body) })
-  );
+  ask((req) => {
+    return req.map(
+      r => new Request(r, { method: "POST", body: JSON.stringify(body) })
+    )
+  }
+  ).chain(lift);
+
 const addQueryParams = (params) =>
   Reader.ask((req) =>
     new Request(`${req.url}?${params}`, {
@@ -69,7 +76,7 @@ const index = (name, fields) =>
 
 const create = () => Reader.ask((req) => new Request(req, { method: "PUT" }));
 
-const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' }))).chain(lift)
+//const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' }))).chain(lift)
 
 const destroy = (confirm = false) =>
   confirm

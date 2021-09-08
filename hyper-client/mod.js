@@ -1,18 +1,17 @@
 import data from "./data/mod.js";
 import cache from "./cache/mod.js";
+import { buildRequest } from './utils.js'
 
 export default function (connectionString) {
   const cs = new URL(connectionString);
-  
-
-
+  const br = buildRequest(cs)
   /**
    * @param {string} domain
    */
   return function (domain = "default") {
     return {
       data: {
-        add: (body) => data.add(body).runWith(buildRequest("data")),
+        add: (body) => data.add(body).runWith(br("data")).toPromise(),
         list: (params) => data.list(params).runWith(buildRequest("data")),
         get: (id) => data.get(id).runWith(buildRequest("data")),
         update: (id, body) =>
