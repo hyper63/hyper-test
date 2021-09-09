@@ -1,5 +1,6 @@
 import data from "./data/mod.js";
 import cache from "./cache/mod.js";
+import search from './search/mod.js';
 import { buildRequest } from './utils.js'
 
 export default function (connectionString) {
@@ -39,7 +40,10 @@ export default function (connectionString) {
       },
       search: {
         create: (fields, storeFields) => search.create(fields, storeFields).runWith(br('search')).toPromise(),
-        destroy: (confirm) => search.destroy(confirm).runWith(br('search')).toPromise()
+        destroy: (confirm) => search.destroy(confirm).runWith(br('search')).toPromise(),
+        add: (key, doc) => search.add(key, doc).runWith(br("search")).toPromise(),
+        remove: (key) => search.remove(key).runWith(br("search")).toPromise(),
+        get: (key) => search.get(key).runWith(br("search")).toPromise()
       },
       info: {
         isCloud: cs.protocol === "cloud:"

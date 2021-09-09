@@ -1,17 +1,33 @@
 import { crocks } from "../deps.js";
 
-const { Reader } = crocks;
+const { ReaderT, Async, map } = crocks;
+const { of, ask, lift } = ReaderT(Async)
 
-const create = (fields, storeFields) => Reader.ask((req) =>
+const create = (fields, storeFields) => ask(map((req) =>
   new Request(req, { method: "PUT", body: JSON.stringify({ fields, storeFields }) })
-);
+)).chain(lift);
 
 const destroy = (confirm = false) =>
   confirm
-    ? Reader.ask((req) => new Request(req, { method: "DELETE" }))
-    : Reader.of({ msg: "not confirmed" });
+    ? ask(map((req) => new Request(req, { method: "DELETE" }))).chain(lift)
+    : of({ msg: "not confirmed" });
+
+const add = (key, doc) =>
+  ask(map(req => new Request(req, { method: 'POST', body: JSON.stringify({ key, doc }) })))
+    .chain(lift)
+
+const remove = (key) =>
+  ask(map(req => new Request(`${req.url}/${key}`, { headers: req.headers, method: 'DELETE' })))
+    .chain(lift)
+
+const get = (key) =>
+  ask(map(req => new Request(`${req.url}/${key}`, { headers: req.headers })))
+    .chain(lift)
 
 export default {
   create,
-  destroy
+  destroy,
+  add,
+  remove,
+  get
 }

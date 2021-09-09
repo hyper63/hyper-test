@@ -16,7 +16,7 @@ const answers = await ask.prompt([
 const hyperCS = answers.hyper === "" ? cs : answers.hyper;
 
 //const services = ['data', 'cache', 'storage', 'search', 'queue']
-const services = ["data", "cache"];
+const services = ["search"];
 /*
 const { services } = await fetch(url, {
   headers,
@@ -52,4 +52,13 @@ if (services.includes("cache")) {
   await import('./cache/remove-key.js').then(runTest('cache'))
   await import('./cache/set-key.js').then(runTest('cache'))
   await import('./cache/query-keys.js').then(runTest('cache'))
+}
+
+if (services.includes("search")) {
+  if (!hyper.info.isCloud) {
+    await fetch(await hyper.search.destroy(true));
+    await fetch(await hyper.search.create(["title"], []))
+  }
+  await import("./search/index-doc.js").then(runTest("search"))
+  await import("./search/get-doc.js").then(runTest("search"))
 }
