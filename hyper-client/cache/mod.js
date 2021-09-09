@@ -1,29 +1,34 @@
 import { crocks } from "../deps.js";
 
-const { ReaderT, Async } = crocks;
+const { ReaderT, Async, map } = crocks;
 const { of, ask, lift } = ReaderT(Async)
 
-const appendPath = (id) =>
-  ask((fn) =>
-    fn.map(req => new Request(`${req.url}/${id}`, {
-      headers: req.headers,
-    })).chain(lift)
-  );
+// const appendPath = (id) =>
+//   ask((fn) =>
+//     fn.map(req => new Request(`${req.url}/${id}`, {
+//       headers: req.headers,
+//     }))
+//   ).chain(lift);
 
-const create = () => ask((fn) => fn.map(req => new Request(req, { method: "PUT" }))).chain(lift);
+const appendPath = (id) =>
+  ask(map(req => new Request(`${req.url}/${id}`, {
+    headers: req.headers,
+  }))).chain(lift);
+
+const create = () => ask(map(req => new Request(req, { method: "PUT" }))).chain(lift);
 
 const destroy = (confirm = false) =>
   confirm
-    ? ask((fn) => fn.map(req => new Request(req, { method: "DELETE" }))).chain(lift)
+    ? ask(map(req => new Request(req, { method: "DELETE" }))).chain(lift)
     : of({ msg: "not confirmed" });
 
 const add = (key, value, ttl) =>
-  ask(fn => fn.map(req =>
+  ask(map(req =>
     new Request(req, {
       method: "POST",
       body: JSON.stringify({ key, value, ttl }),
-    })).chain(lift)
-  );
+    }))
+  ).chain(lift);
 
 const remove = (key) =>
   appendPath(key)

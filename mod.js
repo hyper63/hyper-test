@@ -16,7 +16,7 @@ const answers = await ask.prompt([
 const hyperCS = answers.hyper === "" ? cs : answers.hyper;
 
 //const services = ['data', 'cache', 'storage', 'search', 'queue']
-const services = ["cache"];
+const services = ["data", "cache"];
 /*
 const { services } = await fetch(url, {
   headers,
@@ -28,8 +28,8 @@ const runTest = (svc) => (x) => x.default(hyper[svc]);
 if (services.includes("data")) {
   if (!hyper.info.isCloud) {
     // create app/domain instance
-    await fetch(hyper.data.destroy(true));
-    await fetch(hyper.data.create());
+    await fetch(await hyper.data.destroy(true));
+    await fetch(await hyper.data.create());
   }
 
   await import("./data/create-document.js").then(runTest("data"));
@@ -39,12 +39,13 @@ if (services.includes("data")) {
   await import("./data/list-documents.js").then(runTest("data"));
   await import("./data/query-documents.js").then(runTest("data"));
   await import("./data/bulk-documents.js").then(runTest("data"));
+
 }
 
 if (services.includes("cache")) {
   if (!hyper.info.isCloud) {
-    await fetch(hyper.cache.destroy(true));
-    await fetch(hyper.cache.create());
+    await fetch(await hyper.cache.destroy(true));
+    await fetch(await hyper.cache.create());
   }
   await import("./cache/create-key.js").then(runTest("cache"));
   await import("./cache/get-key.js").then(runTest("cache"));

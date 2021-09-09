@@ -8,14 +8,14 @@ export default function (data) {
 
   const cleanUp = (id) => $fetch(data.remove(id)).chain(toJSON);
 
-  const createDocForDb = (db, doc) => {
-    let req = data.add(doc);
+  const createDocForDb = async (doc) => {
+    let req = await data.add(doc);
     let _req = new Request(req.url + "db", {
       method: "POST",
       headers: req.headers,
       body: JSON.stringify(doc),
     });
-    return $fetch(_req).chain(toJSON);
+    return $fetch(Promise.resolve(_req)).chain(toJSON);
   };
 
   test("POST /data/:store successfully", () =>
@@ -39,11 +39,12 @@ export default function (data) {
       .toPromise());
 
   // return error if store does not exist
-  test("POST /data/:store error if store does not exist", () =>
-    createDocForDb("none", { id: "30", type: "test" })
+
+  test("POST /data/:store error if store does not exist", async () =>
+    (await createDocForDb("none", { id: "30", type: "test" }))
       .map((r) => {
         assertEquals(r.ok, false);
-        assertEquals(r.status, 400);
+        assertEquals(r.status, 500);
         return r;
       })
       .toPromise());
