@@ -1,9 +1,7 @@
 import { crocks } from "../deps.js";
 
-const { Reader, ReaderT, Async } = crocks;
-
-const AsyncReader = ReaderT(Async)
-const { ask, lift } = AsyncReader
+const { ReaderT, Async } = crocks;
+const { of, ask, lift } = ReaderT(Async)
 
 const addBody = (body) =>
   ask((req) => {
@@ -14,20 +12,21 @@ const addBody = (body) =>
   ).chain(lift);
 
 const addQueryParams = (params) =>
-  Reader.ask((req) =>
-    new Request(`${req.url}?${params}`, {
-      headers: req.headers,
-    })
-  );
+  ask((req) =>
+    req.map(r => new Request(`${r.url}?${params}`, {
+      headers: r.headers,
+    }))
+  ).chain(lift);
+
 const appendPath = (id) =>
-  Reader.ask((req) =>
-    new Request(`${req.url}/${id}`, {
-      headers: req.headers,
-    })
-  );
+  ask((req) =>
+    req.map(r => new Request(`${r.url}/${id}`, {
+      headers: r.headers,
+    }))
+  ).chain(lift);
 
 const list = (params = {}) =>
-  Reader.of(params)
+  of(params)
     .map((p) => new URLSearchParams(p).toString())
     .chain(addQueryParams);
 
@@ -74,14 +73,12 @@ const index = (name, fields) =>
       })
     );
 
-const create = () => Reader.ask((req) => new Request(req, { method: "PUT" }));
-
-//const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' }))).chain(lift)
+const create = () => ask(fn => fn.map(req => new Request(req, { method: 'PUT' }))).chain(lift)
 
 const destroy = (confirm = false) =>
   confirm
-    ? Reader.ask((req) => new Request(req, { method: "DELETE" }))
-    : Reader.of({ msg: "not confirmed" });
+    ? ask((req) => req.map(r => new Request(r, { method: "DELETE" }))).chain(lift)
+    : of({ msg: "not confirmed" });
 
 export default {
   add,

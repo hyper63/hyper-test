@@ -1,27 +1,28 @@
 import { crocks } from "../deps.js";
 
-const { Reader } = crocks;
+const { ReaderT, Async } = crocks;
+const { of, ask, lift } = ReaderT(Async)
 
 const appendPath = (id) =>
-  Reader.ask((req) =>
-    new Request(`${req.url}/${id}`, {
+  ask((fn) =>
+    fn.map(req => new Request(`${req.url}/${id}`, {
       headers: req.headers,
-    })
+    })).chain(lift)
   );
 
-const create = () => Reader.ask((req) => new Request(req, { method: "PUT" }));
+const create = () => ask((fn) => fn.map(req => new Request(req, { method: "PUT" }))).chain(lift);
 
 const destroy = (confirm = false) =>
   confirm
-    ? Reader.ask((req) => new Request(req, { method: "DELETE" }))
-    : Reader.of({ msg: "not confirmed" });
+    ? ask((fn) => fn.map(req => new Request(req, { method: "DELETE" }))).chain(lift)
+    : of({ msg: "not confirmed" });
 
 const add = (key, value, ttl) =>
-  Reader.ask((req) =>
+  ask(fn => fn.map(req =>
     new Request(req, {
       method: "POST",
       body: JSON.stringify({ key, value, ttl }),
-    })
+    })).chain(lift)
   );
 
 const remove = (key) =>
@@ -38,7 +39,7 @@ const set = (key, value, ttl) => appendPath(key)
     body: JSON.stringify(value)
   }) : req)
 
-const query = pattern => Reader.ask(req => pattern
+const query = pattern => ask(fn => fn.map(req => pattern
   ? new Request(`${req.url}/_query?${new URLSearchParams({ pattern }).toString()}`, {
     method: 'POST',
     headers: req.headers
@@ -47,7 +48,7 @@ const query = pattern => Reader.ask(req => pattern
     method: 'POST',
     headers: req.headers
   })
-)
+)).chain(lift)
 
 export default {
   create,
