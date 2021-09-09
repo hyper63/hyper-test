@@ -24,10 +24,15 @@ const get = (key) =>
   ask(map(req => new Request(`${req.url}/${key}`, { headers: req.headers })))
     .chain(lift)
 
+const update = (key, doc) =>
+  ask(map(req => new Request(`${req.url}/${key}`, { method: 'PUT', headers: req.headers, body: JSON.stringify({ key, doc }) })))
+    .chain(lift)
+
 export default {
   create,
   destroy,
   add,
   remove,
-  get
+  get,
+  update
 }

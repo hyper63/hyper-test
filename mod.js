@@ -61,4 +61,5 @@ if (services.includes("search")) {
   }
   await import("./search/index-doc.js").then(runTest("search"))
   await import("./search/get-doc.js").then(runTest("search"))
+  await import("./search/update-doc.js").then(runTest("search"))
 }
