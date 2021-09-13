@@ -1,8 +1,8 @@
-import { crocks } from "../deps.js";
+import { crocks, R } from "../deps.js";
 
 const { ReaderT, Async, map } = crocks;
 const { of, ask, lift } = ReaderT(Async)
-
+const { assoc } = R
 const create = (fields, storeFields) => ask(map((req) =>
   new Request(req, { method: "PUT", body: JSON.stringify({ fields, storeFields }) })
 )).chain(lift);
@@ -25,8 +25,23 @@ const get = (key) =>
     .chain(lift)
 
 const update = (key, doc) =>
-  ask(map(req => new Request(`${req.url}/${key}`, { method: 'PUT', headers: req.headers, body: JSON.stringify({ key, doc }) })))
+  ask(map(req => new Request(`${req.url}/${key}`, { method: 'PUT', headers: req.headers, body: JSON.stringify(doc) })))
     .chain(lift)
+
+const query = (query, { fields, filter } = {}) =>
+  of({ query })
+    .map(body => fields ? assoc('fields', fields, body) : body)
+    .map(body => filter ? assoc('filter', filter, body) : body)
+    .chain(body =>
+      ask(
+        map(
+          req => new Request(`${req.url}/_query`, { method: 'POST', headers: req.headers, body: JSON.stringify(body) })
+        )
+      )
+        .chain(lift)
+
+    )
+
 
 export default {
   create,
@@ -34,5 +49,6 @@ export default {
   add,
   remove,
   get,
-  update
+  update,
+  query
 }

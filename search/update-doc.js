@@ -7,26 +7,24 @@ const doAssert = (prop) => (obj) => {
   return obj
 }
 
-const doEquals = (prop, value) => (obj) => {
-  assertEquals(obj[prop], value)
-  return obj
-}
-
-const doError = code => res => {
-  assert(!res.ok)
-  assertEquals(res.status, 404)
-  return res
-}
-
-const log = _ => (console.log(_), _)
-
 export default function (search) {
   const setup = () => $fetch(search.add('movie-3', { id: 'movie-3', type: 'movie', title: 'Hulk' }))
     .chain(toJSON)
 
+  const badIndex = async () => {
+    const r = await search.update('movie-5', { id: 'movie-5', type: 'movie', title: 'Captain Carter' })
+    return Promise.resolve(new Request(
+      r.url.replace('test', 'none'), {
+      method: 'PUT',
+      headers: r.headers,
+      body: await r.json()
+    }
+    ))
+  }
+
   const cleanUp = key => () => $fetch(search.remove('movie-3')).chain(toJSON)
 
-  test('PUT /search/:store/:key - update search document successfully', () =>
+  test('PUT /search/:index/:key - update search document successfully', () =>
     setup()
       .chain(() => $fetch(search.update('movie-3', { id: 'movie-3', type: 'movie', title: 'Avengers' })))
       .chain(toJSON)
@@ -34,5 +32,22 @@ export default function (search) {
       .chain(cleanUp('movie-3'))
       .toPromise()
 
+  )
+
+  test('PUT /search/:index/:key - upsert document successfully', () =>
+    $fetch(
+      search.update('movie-4', { id: 'movie-4', type: 'movie', title: 'Batman' })
+    )
+      .chain(toJSON)
+      .map(doAssert('ok'))
+      .chain(cleanUp('movie-4'))
+      .toPromise()
+  )
+
+  test('PUT /search/:index/:key - index does not exist', () =>
+    $fetch(badIndex())
+      .chain(toJSON)
+      .map(v => assertEquals(v.ok, false))
+      .toPromise()
   )
 }

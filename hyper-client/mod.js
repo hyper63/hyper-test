@@ -44,7 +44,8 @@ export default function (connectionString) {
         add: (key, doc) => search.add(key, doc).runWith(br("search")).toPromise(),
         remove: (key) => search.remove(key).runWith(br("search")).toPromise(),
         get: (key) => search.get(key).runWith(br("search")).toPromise(),
-        update: (key, doc) => search.update(key, doc).runWith(br("search")).toPromise()
+        update: (key, doc) => search.update(key, doc).runWith(br("search")).toPromise(),
+        query: (query, options) => search.query(query, options).runWith(br("search")).toPromise()
       },
       info: {
         isCloud: cs.protocol === "cloud:"

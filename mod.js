@@ -57,9 +57,10 @@ if (services.includes("cache")) {
 if (services.includes("search")) {
   if (!hyper.info.isCloud) {
     await fetch(await hyper.search.destroy(true));
-    await fetch(await hyper.search.create(["title"], []))
+    await fetch(await hyper.search.create(["title", "type"], ["title", "type"]))
   }
   await import("./search/index-doc.js").then(runTest("search"))
   await import("./search/get-doc.js").then(runTest("search"))
   await import("./search/update-doc.js").then(runTest("search"))
+  await import("./search/query-docs.js").then(runTest("search"))
 }
