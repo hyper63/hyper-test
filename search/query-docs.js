@@ -19,21 +19,82 @@ const doError = code => res => {
 }
 
 const log = _ => (console.log(_), _)
+const map = (fn, items) => items.map(fn)
+const compose = (f, g) => v => f(g(v))
+const prop = key => obj => obj[key]
+
+const movies = [{
+  id: 'movie-1',
+  type: 'movie',
+  title: 'Dune'
+}, {
+  id: 'movie-2',
+  type: 'movie',
+  title: 'Alien'
+}, {
+  id: 'movie-3',
+  type: 'movie',
+  title: 'Avatar'
+}, {
+  id: 'movie-4',
+  type: 'movie',
+  title: 'Star Wars'
+}, {
+  id: 'movie-5',
+  type: 'movie',
+  title: 'Jaws'
+}, {
+  id: 'movie-6',
+  type: 'movie',
+  title: 'Ironman'
+}, {
+  id: 'movie-7',
+  type: 'movie',
+  title: 'Batman'
+}]
 
 export default function (search) {
   // add 5 searchable docs
   const setup = () =>
-    $fetch(search.add("m1", { id: "m1", type: "movie", title: 'Caddyshack' }))
+    $fetch(search.load(movies))
       .chain(toJSON)
-      .chain(() => $fetch(search.add("m2", { id: "m2", type: "movie", title: "Stripes" })))
-      .chain(toJSON)
+
+  const cleanUp = () =>
+    $.all(map(
+      compose(
+        id => $fetch(search.remove(id)).chain(toJSON),
+        prop('id')
+      ), movies
+    ))
+
   // search based on content
-  test('POST /search/:index/_query - find movie successfully', () =>
+  test('POST /search/:index/_query - find movie successfully using fields and filter', () =>
     setup()
-      .chain(() => $fetch(search.query('Stripes', { fields: ["title"], filter: { type: 'movie' } })))
+      .chain(() => $fetch(search.query('Ironman', { fields: ["title"], filter: { type: 'movie' } })))
       .chain(toJSON)
       //.map(log)
       .map(doAssert('ok'))
+      .chain(cleanUp)
+      .toPromise()
+  )
+
+  test('POST /search/:index/_query - find movie successfully filter', () =>
+    setup()
+      .chain(() => $fetch(search.query('Spiderman', { filter: { type: 'movie' } })))
+      .chain(toJSON)
+      //.map(log)
+      .map(doAssert('ok'))
+      .chain(cleanUp)
+      .toPromise()
+  )
+
+  test('POST /search/:index/_query - find movie successfully', () =>
+    setup()
+      .chain(() => $fetch(search.query('Jaws')))
+      .chain(toJSON)
+      //.map(log)
+      .map(doAssert('ok'))
+      .chain(cleanUp)
       .toPromise()
   )
 }

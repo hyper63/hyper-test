@@ -6,6 +6,10 @@ import { buildRequest } from './utils.js'
 export default function (connectionString) {
   const cs = new URL(connectionString);
   const br = buildRequest(cs)
+  const $ = (svc, client, action, ...args) => {
+    return client[action](...args).runWith(br(svc)).toPromise()
+  }
+
   /**
    * @param {string} domain
    */
@@ -44,8 +48,12 @@ export default function (connectionString) {
         add: (key, doc) => search.add(key, doc).runWith(br("search")).toPromise(),
         remove: (key) => search.remove(key).runWith(br("search")).toPromise(),
         get: (key) => search.get(key).runWith(br("search")).toPromise(),
-        update: (key, doc) => search.update(key, doc).runWith(br("search")).toPromise(),
-        query: (query, options) => search.query(query, options).runWith(br("search")).toPromise()
+
+        //update: (key, doc) => search.update(key, doc).runWith(br("search")).toPromise(),
+        update: (key, doc) => $('search', search, 'update', key, doc),
+        //query: (query, options) => search.query(query, options).runWith(br("search")).toPromise(),
+        query: (query, options) => $('search', search, 'query', query, options),
+        load: (docs) => $('search', search, 'load', docs)
       },
       info: {
         isCloud: cs.protocol === "cloud:"
@@ -53,3 +61,4 @@ export default function (connectionString) {
     };
   };
 }
+

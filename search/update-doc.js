@@ -34,6 +34,7 @@ export default function (search) {
 
   )
 
+
   test('PUT /search/:index/:key - upsert document successfully', () =>
     $fetch(
       search.update('movie-4', { id: 'movie-4', type: 'movie', title: 'Batman' })
@@ -44,10 +45,12 @@ export default function (search) {
       .toPromise()
   )
 
+
   test('PUT /search/:index/:key - index does not exist', () =>
     $fetch(badIndex())
       .chain(toJSON)
       .map(v => assertEquals(v.ok, false))
       .toPromise()
   )
+
 }

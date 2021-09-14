@@ -3,52 +3,56 @@ import { crocks, R } from "../deps.js";
 const { ReaderT, Async, map } = crocks;
 const { of, ask, lift } = ReaderT(Async)
 const { assoc } = R
-const create = (fields, storeFields) => ask(map((req) =>
+
+const apply = fn => ask(map(fn)).chain(lift)
+
+const create = (fields, storeFields) => apply((req) =>
   new Request(req, { method: "PUT", body: JSON.stringify({ fields, storeFields }) })
-)).chain(lift);
+);
 
 const destroy = (confirm = false) =>
   confirm
-    ? ask(map((req) => new Request(req, { method: "DELETE" }))).chain(lift)
-    : of({ msg: "not confirmed" });
+    ? apply((req) => new Request(req, { method: "DELETE" }))
+    : of({ msg: "not confirmed" })
 
 const add = (key, doc) =>
-  ask(map(req => new Request(req, { method: 'POST', body: JSON.stringify({ key, doc }) })))
-    .chain(lift)
+  apply(req => new Request(req, { method: 'POST', body: JSON.stringify({ key, doc }) }))
+
 
 const remove = (key) =>
-  ask(map(req => new Request(`${req.url}/${key}`, { headers: req.headers, method: 'DELETE' })))
-    .chain(lift)
+  apply(req => new Request(`${req.url}/${key}`, { headers: req.headers, method: 'DELETE' }))
 
 const get = (key) =>
-  ask(map(req => new Request(`${req.url}/${key}`, { headers: req.headers })))
-    .chain(lift)
+  apply(req => new Request(`${req.url}/${key}`, { headers: req.headers }))
 
 const update = (key, doc) =>
-  ask(map(req => new Request(`${req.url}/${key}`, { method: 'PUT', headers: req.headers, body: JSON.stringify(doc) })))
-    .chain(lift)
+  apply(req => new Request(`${req.url}/${key}`, { method: 'PUT', headers: req.headers, body: JSON.stringify(doc) }))
 
 const query = (query, { fields, filter } = {}) =>
   of({ query })
     .map(body => fields ? assoc('fields', fields, body) : body)
     .map(body => filter ? assoc('filter', filter, body) : body)
     .chain(body =>
-      ask(
-        map(
-          req => new Request(`${req.url}/_query`, { method: 'POST', headers: req.headers, body: JSON.stringify(body) })
-        )
+      apply(
+        req => new Request(`${req.url}/_query`, { method: 'POST', headers: req.headers, body: JSON.stringify(body) })
       )
-        .chain(lift)
-
     )
 
+const load = (docs) => apply(req => new Request(`${req.url}/_bulk`, {
+  method: 'POST',
+  headers: req.headers,
+  body: JSON.stringify(docs)
+}))
 
-export default {
+
+
+export default Object.freeze({
   create,
   destroy,
   add,
   remove,
   get,
   update,
-  query
-}
+  query,
+  load
+})
