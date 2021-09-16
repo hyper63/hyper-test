@@ -16,10 +16,8 @@ export default function (cache) {
       .toPromise());
 
   test("GET /cache/:store/:key - 404 key does not exist", () =>
-    get('30')
-      .map(r => (assertEquals(r.ok, false), r))
-      .map(r => (assertEquals(r.status, 404), r))
-
-      .toPromise()
-  )
+    get("30")
+      .map((r) => (assertEquals(r.ok, false), r))
+      .map((r) => (assertEquals(r.status, 404), r))
+      .toPromise());
 }

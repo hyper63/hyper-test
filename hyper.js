@@ -11,6 +11,6 @@ hyper({
   app,
   adapters: [
     { port: "data", plugins: [dndb({ dir: "/tmp" })] },
-    { port: 'search', plugins: [search()] }
+    { port: "search", plugins: [search()] },
   ],
 });

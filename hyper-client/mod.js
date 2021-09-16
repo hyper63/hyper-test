@@ -1,14 +1,14 @@
 import data from "./data/mod.js";
 import cache from "./cache/mod.js";
-import search from './search/mod.js';
-import { buildRequest } from './utils.js'
+import search from "./search/mod.js";
+import { buildRequest } from "./utils.js";
 
 export default function (connectionString) {
   const cs = new URL(connectionString);
-  const br = buildRequest(cs)
+  const br = buildRequest(cs);
   const $ = (svc, client, action, ...args) => {
-    return client[action](...args).runWith(br(svc)).toPromise()
-  }
+    return client[action](...args).runWith(br(svc)).toPromise();
+  };
 
   /**
    * @param {string} domain
@@ -39,26 +39,30 @@ export default function (connectionString) {
           cache.add(key, value, ttl).runWith(br("cache")).toPromise(),
         remove: (key) => cache.remove(key).runWith(br("cache")).toPromise(),
         get: (key) => cache.get(key).runWith(br("cache")).toPromise(),
-        set: (key, value, ttl) => cache.set(key, value, ttl).runWith(br('cache')).toPromise(),
-        query: (pattern) => cache.query(pattern).runWith(br('cache')).toPromise()
+        set: (key, value, ttl) =>
+          cache.set(key, value, ttl).runWith(br("cache")).toPromise(),
+        query: (pattern) =>
+          cache.query(pattern).runWith(br("cache")).toPromise(),
       },
       search: {
-        create: (fields, storeFields) => search.create(fields, storeFields).runWith(br('search')).toPromise(),
-        destroy: (confirm) => search.destroy(confirm).runWith(br('search')).toPromise(),
-        add: (key, doc) => search.add(key, doc).runWith(br("search")).toPromise(),
+        create: (fields, storeFields) =>
+          search.create(fields, storeFields).runWith(br("search")).toPromise(),
+        destroy: (confirm) =>
+          search.destroy(confirm).runWith(br("search")).toPromise(),
+        add: (key, doc) =>
+          search.add(key, doc).runWith(br("search")).toPromise(),
         remove: (key) => search.remove(key).runWith(br("search")).toPromise(),
         get: (key) => search.get(key).runWith(br("search")).toPromise(),
 
         //update: (key, doc) => search.update(key, doc).runWith(br("search")).toPromise(),
-        update: (key, doc) => $('search', search, 'update', key, doc),
+        update: (key, doc) => $("search", search, "update", key, doc),
         //query: (query, options) => search.query(query, options).runWith(br("search")).toPromise(),
-        query: (query, options) => $('search', search, 'query', query, options),
-        load: (docs) => $('search', search, 'load', docs)
+        query: (query, options) => $("search", search, "query", query, options),
+        load: (docs) => $("search", search, "load", docs),
       },
       info: {
-        isCloud: cs.protocol === "cloud:"
-      }
+        isCloud: cs.protocol === "cloud:",
+      },
     };
   };
 }
-

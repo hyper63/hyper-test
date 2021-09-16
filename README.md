@@ -16,11 +16,10 @@
 ## Usage
 
 ```
-HYPER=http://localhost:6363/test ./hyper-test 
+HYPER=http://localhost:6363/test ./hyper-test
 ```
 
 ## Features
 
-* Data Adapter Test Suite
-* Cache Adapter Test Suite
-
+- Data Adapter Test Suite
+- Cache Adapter Test Suite

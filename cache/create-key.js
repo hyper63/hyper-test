@@ -26,7 +26,6 @@ export default function (cache) {
       .chain(() => cleanUp("1"))
       .toPromise());
 
-
   test("POST /cache/:store document conflict", () =>
     createKV("2", { type: "movie", title: "Caddyshack" })
       .chain(() => createKV("2", { type: "movie", title: "Caddyshack 2" }))
@@ -34,7 +33,6 @@ export default function (cache) {
       .map((r) => (assertEquals(r.status, 409), r.id))
       .chain(() => cleanUp("2"))
       .toPromise());
-
 
   // return error if store does not exist
   test("POST /cache/:store error if store does not exist", async () =>
