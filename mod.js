@@ -16,7 +16,7 @@ const answers = await ask.prompt([
 const hyperCS = answers.hyper === "" ? cs : answers.hyper;
 
 const services = ['data', 'cache', 'search' /*, 'storage', 'queue' */]
-//const services = ["search"];
+//const services = ["cache"];
 /*
 const { services } = await fetch(url, {
   headers,
