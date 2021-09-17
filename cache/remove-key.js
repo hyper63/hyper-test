@@ -9,8 +9,8 @@ export default function (cache) {
   const remove = (key) => $fetch(cache.remove(key)).chain(toJSON);
 
   test("DELETE /cache/:store/:key - remove key", () =>
-    add("40", { type: "movie", title: "Batman" })
-      .chain(() => remove("40"))
+    add("test-40", { type: "movie", title: "Batman" })
+      .chain(() => remove("test-40"))
       .map((r) => (assertEquals(r.ok, true), r))
       .toPromise());
 }

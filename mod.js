@@ -15,8 +15,8 @@ const answers = await ask.prompt([
 
 const hyperCS = answers.hyper === "" ? cs : answers.hyper;
 
-//const services = ['data', 'cache', 'storage', 'search', 'queue']
-const services = ["cache"];
+const services = ['data', 'cache', 'search' /*, 'storage', 'queue' */]
+//const services = ["cache"];
 /*
 const { services } = await fetch(url, {
   headers,
@@ -28,8 +28,8 @@ const runTest = (svc) => (x) => x.default(hyper[svc]);
 if (services.includes("data")) {
   if (!hyper.info.isCloud) {
     // create app/domain instance
-    await fetch(hyper.data.destroy(true));
-    await fetch(hyper.data.create());
+    await fetch(await hyper.data.destroy(true));
+    await fetch(await hyper.data.create());
   }
 
   await import("./data/create-document.js").then(runTest("data"));
@@ -43,12 +43,25 @@ if (services.includes("data")) {
 
 if (services.includes("cache")) {
   if (!hyper.info.isCloud) {
-    await fetch(hyper.cache.destroy(true));
-    await fetch(hyper.cache.create());
+    await fetch(await hyper.cache.destroy(true));
+    await fetch(await hyper.cache.create());
   }
   await import("./cache/create-key.js").then(runTest("cache"));
   await import("./cache/get-key.js").then(runTest("cache"));
-  await import('./cache/remove-key.js').then(runTest('cache'))
-  await import('./cache/set-key.js').then(runTest('cache'))
-  await import('./cache/query-keys.js').then(runTest('cache'))
+  await import("./cache/remove-key.js").then(runTest("cache"));
+  await import("./cache/set-key.js").then(runTest("cache"));
+  await import("./cache/query-keys.js").then(runTest("cache"));
+}
+
+if (services.includes("search")) {
+  if (!hyper.info.isCloud) {
+    await fetch(await hyper.search.destroy(true));
+    await fetch(
+      await hyper.search.create(["title", "type"], ["title", "type"]),
+    );
+  }
+  await import("./search/index-doc.js").then(runTest("search"));
+  await import("./search/get-doc.js").then(runTest("search"));
+  //await import("./search/update-doc.js").then(runTest("search"))
+  await import("./search/query-docs.js").then(runTest("search"));
 }

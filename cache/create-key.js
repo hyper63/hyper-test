@@ -9,33 +9,34 @@ export default function (cache) {
 
   const cleanUp = (key) => $fetch(cache.remove(key)).chain(toJSON);
 
-  const createDocForDb = (db, key, value) => {
-    let req = cache.add(key, value);
+  const createDocForDb = async (key, value) => {
+    let req = await cache.add(key, value);
     let _req = new Request(req.url + "db", {
       method: "POST",
       headers: req.headers,
       body: JSON.stringify({ key, value }),
     });
-    return $fetch(_req).chain(toJSON);
+
+    return $fetch(Promise.resolve(_req)).chain(toJSON);
   };
 
   test("POST /cache/:store successfully", () =>
-    createKV("1", { type: "movie", title: "Ghostbusters" })
+    createKV("test-1", { type: "movie", title: "Ghostbusters" })
       .map((r) => (assert(r.ok), r))
-      .chain(() => cleanUp("1"))
+      .chain(() => cleanUp("test-1"))
       .toPromise());
 
   test("POST /cache/:store document conflict", () =>
-    createKV("2", { type: "movie", title: "Caddyshack" })
-      .chain(() => createKV("2", { type: "movie", title: "Caddyshack 2" }))
+    createKV("test-2", { type: "movie", title: "Caddyshack" })
+      .chain(() => createKV("test-2", { type: "movie", title: "Caddyshack 2" }))
       .map((r) => (assertEquals(r.ok, false), r))
       .map((r) => (assertEquals(r.status, 409), r.id))
-      .chain(() => cleanUp("2"))
+      .chain(() => cleanUp("test-2"))
       .toPromise());
 
   // return error if store does not exist
-  test("POST /cache/:store error if store does not exist", () =>
-    createDocForDb("none", "30", { type: "badfood" })
+  test("POST /cache/:store error if store does not exist", async () =>
+    (await createDocForDb("test-30", { type: "badfood" }))
       .map((r) => {
         assertEquals(r.ok, false);
         assertEquals(r.status, 400);

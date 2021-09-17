@@ -8,19 +8,16 @@ export default function (cache) {
   const set = (key, value) => $fetch(cache.set(key, value)).chain(toJSON);
   const remove = (key) => $fetch(cache.remove(key)).chain(toJSON);
 
-  test('PUT /cache/:store/:key - set key', () =>
-    add("100", { type: 'movie', title: 'Alien' })
-      .chain(() => set('100', { type: 'movie', title: 'Alien', year: '1979' }))
-      .map(r => (assertEquals(r.ok, true), r))
-      .chain(() => remove('100'))
-      .toPromise()
-  )
+  test("PUT /cache/:store/:key - set key", () =>
+    add("test-100", { type: "movie", title: "Alien" })
+      .chain(() => set("test-100", { type: "movie", title: "Alien", year: "1979" }))
+      .map((r) => (assertEquals(r.ok, true), r))
+      .chain(() => remove("test-100"))
+      .toPromise());
 
-  test('PUT /cache/:store/:key - set key that dont exist', () =>
-    set('101', { type: 'movie', title: 'Aquaman' })
-      .map(r => (assertEquals(r.ok, true), r))
-      .chain(() => remove('101'))
-      .toPromise()
-  )
-
+  test("PUT /cache/:store/:key - set key that dont exist", () =>
+    set("test-101", { type: "movie", title: "Aquaman" })
+      .map((r) => (assertEquals(r.ok, true), r))
+      .chain(() => remove("test-101"))
+      .toPromise());
 }
